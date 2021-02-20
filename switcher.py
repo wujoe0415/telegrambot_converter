@@ -14,25 +14,25 @@ def start(update: Update, context: CallbackContext):
 
     # update.message.reply_text(text='Example')
 
-    update.message.reply_text('welcome to use this converter,',update.message.from_user_name,"please type \\converter ")
-    # .message.from_user_name == Chat.username
+    update.message.reply_text('Welcome to use this converter, '+ update.message.chat.username +" , please type \\converter ")
+    # .message.from_user_name == update.message.text.name
 
     
-def end(bot,update):
+def end(update: Update, context: CallbackContext):
     link = ' '
     new_name = ' '
-    update.message.reply_text(update.message.from_user_name, "thanks you!")
+    update.message.reply_text(update.message.chat.username + ", thanks you!")
 
     # updater.dispatcher.add_handler
     
 
-def convert(bot,update):
+def convert(bot,update: Update):
     
-
+    update.message.reply_text(update.message.chat.username+', 請貼上影片的網址(輸入'+'/'+'end來取消)')
     link = update.message.text
-    update.message.reply_text(update.chat.username,'輸入你想要的檔案名稱(輸入'+'\\'+'end來取消)')
+    update.message.reply_text(update.message.chat.username+', 輸入你想要的檔案名稱(輸入'+'/'+'end來取消)')
     new_name = update.message.text 
-
+    
     ydl_opts = {
                 'format': 'bestaudio/best',
                 'outtmpl': link +'.mp3',
@@ -54,9 +54,9 @@ def convert(bot,update):
     link=' '
     
     if(info_dict.get('size',link) > 50000000):
-        bot.sendMessage(update.message.from_user_name,",sorry! This file seems to be too heavy")
+        bot.sendMessage(update.message.chat.username,",sorry! This file seems to be too heavy")
     else :
-        bot.sendAudio(update.message.from_user_name,new_name+".mp3") 
+        bot.sendAudio(update.message.chat.username,new_name+".mp3") 
 
     #"new_name.mp3" == audio=open(info_dict.get('title', info_dict.get('title', 'video')
 
@@ -65,7 +65,7 @@ def main():
     updater = Updater('1682027455:AAGriDdVHTH37BnzFCxP4zBFt1ADWv17JgI', use_context=True)
     updater.dispatcher.add_handler(CommandHandler("start", start))
     updater.dispatcher.add_handler(CommandHandler("end", end))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text, convert))
+    updater.dispatcher.add_handler(CommandHandler("convert", convert))
 
     updater.start_polling()
     updater.idle()

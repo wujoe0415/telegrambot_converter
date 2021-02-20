@@ -1,27 +1,36 @@
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, Bot 
 
 import youtube_dl as yt
 import json
 import os
+import logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level = logging.INFO)
 link = ' '
 
+def start(update: Update, context: CallbackContext):
+# def start(bot,update):
 
-def start(bot,update):
-    bot.sendMessage('welcome to use this converter,',update.chat.username,'please paste on the youtube video link.')
+    # update.message.reply_text(text='Example')
+
+    update.message.reply_text('welcome to use this converter,',update.message.from_user_name,"please type \\converter ")
     # .message.from_user_name == Chat.username
+
+    
 def end(bot,update):
     link = ' '
     new_name = ' '
-    bot.sendMessage(update.message.from_user_name, "thanks you!")
+    update.message.reply_text(update.message.from_user_name, "thanks you!")
 
-    updater.dispatcher.add_handler
+    # updater.dispatcher.add_handler
     
 
 def convert(bot,update):
     
 
-    link = update.message.text[5:].replace('\n',' ')
-    bot.sendMessage(update.chat.username,'輸入你想要的檔案名稱(輸入'+'\\'+'end來取消)')
+    link = update.message.text
+    update.message.reply_text(update.chat.username,'輸入你想要的檔案名稱(輸入'+'\\'+'end來取消)')
     new_name = update.message.text 
 
     ydl_opts = {
@@ -52,9 +61,14 @@ def convert(bot,update):
     #"new_name.mp3" == audio=open(info_dict.get('title', info_dict.get('title', 'video')
 
     os.remove(new_name+".mp3")
-updater = Updater('1682027455:AAGriDdVHTH37BnzFCxP4zBFt1ADWv17JgI')
-updater.dispatcher.add_handler(MessageHandler(Filters.text, convert))
-updater.dispatcher.add_handler(CommandHandler("start", start))
-updater.dispatcher.add_handler(CommandHandler("end", end))
-updater.start_polling()
-updater.idle()
+def main():
+    updater = Updater('1682027455:AAGriDdVHTH37BnzFCxP4zBFt1ADWv17JgI', use_context=True)
+    updater.dispatcher.add_handler(CommandHandler("start", start))
+    updater.dispatcher.add_handler(CommandHandler("end", end))
+    updater.dispatcher.add_handler(MessageHandler(Filters.text, convert))
+
+    updater.start_polling()
+    updater.idle()
+
+if __name__ == '__main__':
+    main()

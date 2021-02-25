@@ -1,5 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from telegram import Update, Bot 
+from telegram import Update, Bot ,Message
 
 import youtube_dl as yt
 import json
@@ -7,7 +7,16 @@ import os
 import logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level = logging.INFO)
-link = ' '
+vlink = ' '
+new_name = ' '
+
+def rename(update: Update, context: CallbackContext):
+    global new_name
+    new_name = update.message.text[8:].replace('\n', ' ')
+
+def link(update: Update, context: CallbackContext):
+    global vlink
+    vlink = update.message.text[6:].replace('\n', ' ')
 
 def start(update: Update, context: CallbackContext):
 # def start(bot,update):
@@ -19,23 +28,25 @@ def start(update: Update, context: CallbackContext):
 
     
 def end(update: Update, context: CallbackContext):
-    link = ' '
+    global vlink, new_name
+    vlink = ' '
     new_name = ' '
     update.message.reply_text(update.message.chat.username + ", thanks you!")
 
     # updater.dispatcher.add_handler
-    
 
-def convert(bot,update: Update):
+
+def convert(update: Update, context: CallbackContext):
+    global vlink, new_name 
+    #update.message.reply_text(update.message.chat.username +', 請貼上影片的網址(輸入'+'/'+'end來取消)')
     
-    update.message.reply_text(update.message.chat.username+', 請貼上影片的網址(輸入'+'/'+'end來取消)')
-    link = update.message.text
-    update.message.reply_text(update.message.chat.username+', 輸入你想要的檔案名稱(輸入'+'/'+'end來取消)')
-    new_name = update.message.text 
+   
+    #update.message.reply_text(update.message.chat.username+', 輸入你想要的檔案名稱(輸入'+'/'+'end來取消)')
+     
     
     ydl_opts = {
                 'format': 'bestaudio/best',
-                'outtmpl': link +'.mp3',
+                'outtmpl': new_name +'.mp3',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -44,19 +55,19 @@ def convert(bot,update: Update):
             }
     
     with yt.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(link, download=False)
-        ydl.download([link])
-        video_title = info_dict('title',link)
+        info_dict = ydl.extract_info(vlink, download=False)
+        ydl.download([vlink])
+        video_title = info_dict('title',vlink)
 
     os.rename(video_title+".map3",new_name+".mp3")
     
     new_name = ' '
-    link=' '
+    vlink=' '
     
-    if(info_dict.get('size',link) > 50000000):
-        bot.sendMessage(update.message.chat.username,",sorry! This file seems to be too heavy")
+    if(info_dict.get('size',vlink) > 50000000):
+        update.message.reply_text(update.message.chat.username,",sorry! This file seems to be too heavy")
     else :
-        bot.sendAudio(update.message.chat.username,new_name+".mp3") 
+        update.message.reply_text(update.message.chat.username,new_name+".mp3") 
 
     #"new_name.mp3" == audio=open(info_dict.get('title', info_dict.get('title', 'video')
 
@@ -66,6 +77,8 @@ def main():
     updater.dispatcher.add_handler(CommandHandler("start", start))
     updater.dispatcher.add_handler(CommandHandler("end", end))
     updater.dispatcher.add_handler(CommandHandler("convert", convert))
+    updater.dispatcher.add_handler(CommandHandler("rename", rename))
+    updater.dispatcher.add_handler(CommandHandler("link", link))
 
     updater.start_polling()
     updater.idle()

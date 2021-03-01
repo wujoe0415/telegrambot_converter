@@ -35,7 +35,6 @@ def end(update: Update, context: CallbackContext):
 
     # updater.dispatcher.add_handler
 
-
 def convert(update: Update, context: CallbackContext):
     global vlink, new_name 
     #update.message.reply_text(update.message.chat.username +', 請貼上影片的網址(輸入'+'/'+'end來取消)')
@@ -57,26 +56,33 @@ def convert(update: Update, context: CallbackContext):
     with yt.YoutubeDL(ydl_opts) as ydl:
         info_dict = ydl.extract_info(vlink, download=False)
         ydl.download([vlink])
-        video_title = info_dict('title',vlink)
+        #video_title = info_dict('title',vlink)
 
-    os.rename(video_title+".map3",new_name+".mp3")
+    #os.rename(video_title+".map3",new_name+".mp3")
     
-    new_name = ' '
-    vlink=' '
+    formats = info_dict['formats']
+    #formats is a list of dictionaries, pick the format you are looking for
+
+    format = formats[0]
     
-    if(info_dict.get('size',vlink) > 50000000):
+    
+    if(format['filesize'] > 50000000):
         update.message.reply_text(update.message.chat.username,",sorry! This file seems to be too heavy")
     else :
-        update.message.reply_text(update.message.chat.username,new_name+".mp3") 
+        #update.message.reply_text(update.message.chat.username,new_name+".mp3") 
+        context.bot.sendAudio(chat_id=update.message.chat_id,audio = open(new_name+'.mp3', 'rb'))
 
+    
     #"new_name.mp3" == audio=open(info_dict.get('title', info_dict.get('title', 'video')
 
     os.remove(new_name+".mp3")
+    new_name = ' '
+    vlink=' '
 def main():
     updater = Updater('1682027455:AAGriDdVHTH37BnzFCxP4zBFt1ADWv17JgI', use_context=True)
     updater.dispatcher.add_handler(CommandHandler("start", start))
     updater.dispatcher.add_handler(CommandHandler("end", end))
-    updater.dispatcher.add_handler(CommandHandler("convert", convert))
+    updater.dispatcher.add_handler(CommandHandler("convert", convert, pass_args=True))
     updater.dispatcher.add_handler(CommandHandler("rename", rename))
     updater.dispatcher.add_handler(CommandHandler("link", link))
 

@@ -7,49 +7,26 @@ import json
 import os
 import logging
 
+import mutagen
+
+import mutagen.mp3
+from mutagen.id3 import ID3, ID3NoHeaderError
+
+
 # import telebot
 #from telebot import types
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level = logging.INFO)
-vlink = ' '
-new_name = ' '
-artist_name = ' '
+vlink = " " 
+new_name = " " 
+artist_name = " " 
 
-class FFmpegMP3MetadataPP(FFmpegMetadataPP):
-    global vlink, new_name,artist_name
 
-    def __init__(self, downloader=None, metadata=None):
-        self.metadata = metadata or {}
-        super(FFmpegMP3MetadataPP, self).__init__(downloader)
-
-    def run(self, information):
-        information = self.purge_metadata(information)
-        information.update(self.metadata)
-        return super(FFmpegMP3MetadataPP, self).run(information)
-
-    def purge_metadata(self, info):
-        info.pop('title', new_name)
-        info.pop('track', None)
-        info.pop('upload_date', None)
-        info.pop('description', None)
-        info.pop('webpage_url', None)
-        info.pop('track_number', None)
-        info.pop('artist', artist_name)
-        info.pop('creator', None)
-        info.pop('uploader', None)
-        info.pop('uploader_id', None)
-        info.pop('genre', None)
-        info.pop('album', None)
-        info.pop('album_artist', None)
-        info.pop('disc_number', None)
-        return info
-
-    
 
 def artname(update: Update, context: CallbackContext):
     global artist_name
-    artist_name = update.message.text[:].replace('\n', ' ')
+    artist_name = update.message.text[:].replace('\n', '')
     
 
 def reform(update: Update, context: CallbackContext):
@@ -57,14 +34,14 @@ def reform(update: Update, context: CallbackContext):
 
     global new_name
     # update.message.reply_text(update.message.chat.username + ",please enter the song title.")
-    new_name = update.message.text[8:].replace('\n', ' ')
+    new_name = update.message.text[8:].replace('\n', '')
     #update.message.reply_text(update.message.chat.username + ",please enter the song title.")
     #updater.dispatcher.add_handler(MessageHandler(Filters.text,rename))
     #context.bot.register_next_step_handler(Filters.text,rename)
 
 
 
-    update.message.reply_text(update.message.chat.username + ",please enter the artist name.")
+    update.message.reply_text(update.message.chat.username + ",please enter the artist\'s name.")
     #updater.dispatcher.add_handler(MessageHandler(Filters.text,artname))
     #context.bot.register_next_step_handler(Filters.text,artname)
 
@@ -95,14 +72,8 @@ def end(update: Update, context: CallbackContext):
 def convert(update: Update, context: CallbackContext):
     global vlink, new_name,artist_name
     #update.message.reply_text(update.message.chat.username +', 請貼上影片的網址(輸入'+'/'+'end來取消)')
-    
-   
     #update.message.reply_text(update.message.chat.username+', 輸入你想要的檔案名稱(輸入'+'/'+'end來取消)')
-    metadata = {
-                "title": new_name,
-                "artist": artist_name
-    
-    }
+   
     
     ydl_opts = {
                 'format': 'bestaudio/best',
@@ -116,23 +87,40 @@ def convert(update: Update, context: CallbackContext):
     try:
         with yt.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(vlink, download=False)
-            ydl.add_post_processor(FFmpegMetadataPP(metadata))
+            
             ydl.download([vlink])
+            
+            #ydl.add_post_processor(FFmpegMetadataPP(metadata))
             #video_title = info_dict('title',vlink)
     
     except Exception:
         context.bot.send_message(chat_id=update.message.chat_id,text="Sorry, I can't find this video, please check about the link you pasted again.")
         new_name = ' '
         vlink=' '
+        return False
+        
         # break this function
-        
-        
+   
 
     #os.rename(video_title+".map3",new_name+".mp3")
     
+    filenam = new_name +".mp3"
+
+    try:
+        #audioo = ID3(filenam)
+        audioo =ID3()
+        audioo.save(filenam)
+
+    except mutagen.id3.ID3NoHeaderError:
+        audioo = ID3()
+        audioo.load(filenam)#filename, easy=True)
+        #audioo.add_tags()
+    #type(audioo)
+    audioo['artist'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)#artname
+    audioo.save(filenam,v2_version=3)
+
     formats = info_dict['formats']
     #formats is a list of dictionaries, pick the format you are looking for
-
     format = formats[0]
     
     
@@ -145,7 +133,7 @@ def convert(update: Update, context: CallbackContext):
     
     #"new_name.mp3" == audio=open(info_dict.get('title', info_dict.get('title', 'video')
 
-    os.remove(new_name+".mp3")
+    #os.remove(new_name+".mp3")
     new_name = ' '
     vlink=' '
 

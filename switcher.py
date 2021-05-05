@@ -10,7 +10,8 @@ import logging
 import mutagen
 
 import mutagen.mp3
-from mutagen.id3 import ID3, ID3NoHeaderError
+from mutagen.id3 import ID3, ID3NoHeaderError, TPE1
+from mutagen.easyid3 import EasyID3
 
 
 # import telebot
@@ -109,6 +110,7 @@ def convert(update: Update, context: CallbackContext):
     try:
         #audioo = ID3(filenam)
         audioo =ID3()
+        #audioo = EasyID3()
         audioo.save(filenam)
 
     except mutagen.id3.ID3NoHeaderError:
@@ -116,7 +118,9 @@ def convert(update: Update, context: CallbackContext):
         audioo.load(filenam)#filename, easy=True)
         #audioo.add_tags()
     #type(audioo)
-    audioo['artist'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)#artname
+    #audioo['artist'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)#artname
+    #audioo['TPE1'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)
+    audioo['TPE1'] = TPE1(encoding=3, text=artist_name)
     audioo.save(filenam,v2_version=3)
 
     formats = info_dict['formats']

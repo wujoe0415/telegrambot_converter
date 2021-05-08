@@ -10,7 +10,7 @@ import logging
 import mutagen
 
 import mutagen.mp3
-from mutagen.id3 import ID3, ID3NoHeaderError, TPE1
+from mutagen.id3 import ID3, ID3NoHeaderError, TPE1, TOPE
 from mutagen.easyid3 import EasyID3
 
 
@@ -82,7 +82,7 @@ def convert(update: Update, context: CallbackContext):
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
-                    'preferredquality': '320'
+                    'preferredquality': '192'
                 }]
             }
     try:
@@ -108,19 +108,19 @@ def convert(update: Update, context: CallbackContext):
     filenam = new_name +".mp3"
 
     try:
-        #audioo = ID3(filenam)
         audioo =ID3()
-        #audioo = EasyID3()
         audioo.save(filenam)
 
     except mutagen.id3.ID3NoHeaderError:
-        audioo = ID3()
-        audioo.load(filenam)#filename, easy=True)
-        #audioo.add_tags()
+        context.bot.send_message(chat_id=update.message.chat_id,text="Sorry, I can't find this video, please check about the link you pasted again.")
+        new_name = ' '
+        vlink=' '
+        return False
+     
     #type(audioo)
     #audioo['artist'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)#artname
-    #audioo['TPE1'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)
-    audioo['TPE1'] = TPE1(encoding=3, text=artist_name)
+    audioo['TOPE'] = TOPE(encoding=3, text=artist_name) #id3 artist_name
+    #audioo['TPE1'] = TPE1(encoding=3, text=artist_name) #id3 artist_name
     audioo.save(filenam,v2_version=3)
 
     formats = info_dict['formats']

@@ -78,13 +78,16 @@ def convert(update: Update, context: CallbackContext):
     
     ydl_opts = {
                 'format': 'bestaudio/best',
-                'outtmpl': new_name +'.mp3',
+                # u'%(id)s.%(ext)s'
+                'outtmpl': u'%(id)s.%(ext)s',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
                     'preferredquality': '192'
                 }]
-            }
+                }
+    # you can keep the m4a file by adding ,'keepvideo': True
+            
     try:
         with yt.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(vlink, download=False)
@@ -103,7 +106,7 @@ def convert(update: Update, context: CallbackContext):
         # break this function
    
 
-    #os.rename(video_title+".map3",new_name+".mp3")
+    os.rename(u'%(id)s'+".mp3",new_name+".mp3")
     
     filenam = new_name +".mp3"
 
@@ -119,8 +122,8 @@ def convert(update: Update, context: CallbackContext):
      
     #type(audioo)
     #audioo['artist'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)#artname
-    audioo['TOPE'] = TOPE(encoding=3, text=artist_name) #id3 artist_name
-    #audioo['TPE1'] = TPE1(encoding=3, text=artist_name) #id3 artist_name
+    #audioo['TOPE'] = TOPE(encoding=3, text=artist_name) #id3 artist_name
+    audioo['TPE1'] = TPE1(encoding=3, text=artist_name) #id3 artist_name
     audioo.save(filenam,v2_version=3)
 
     formats = info_dict['formats']

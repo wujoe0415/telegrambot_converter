@@ -10,7 +10,7 @@ import logging
 import mutagen
 
 import mutagen.mp3
-from mutagen.id3 import ID3, ID3NoHeaderError, TPE1, TOPE
+from mutagen.id3 import ID3, ID3NoHeaderError, TPE1, TOPE, TIT2
 from mutagen.easyid3 import EasyID3
 
 
@@ -79,7 +79,7 @@ def convert(update: Update, context: CallbackContext):
     ydl_opts = {
                 'format': 'bestaudio/best',
                 # u'%(id)s.%(ext)s'
-                'outtmpl': u'%(id)s.%(ext)s',
+                'outtmpl': new_name+'.'+u'%(ext)s',
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -105,8 +105,8 @@ def convert(update: Update, context: CallbackContext):
         
         # break this function
    
-
-    os.rename(u'%(id)s'+".mp3",new_name+".mp3")
+    #output = ydl_opts['outtmpl'].split('.')
+    #os.rename(output[0]+'mp3',new_name+".mp3")
     
     filenam = new_name +".mp3"
 
@@ -124,6 +124,8 @@ def convert(update: Update, context: CallbackContext):
     #audioo['artist'] = mutagen.id3.TextFrame(encoding=3, text=artist_name)#artname
     #audioo['TOPE'] = TOPE(encoding=3, text=artist_name) #id3 artist_name
     audioo['TPE1'] = TPE1(encoding=3, text=artist_name) #id3 artist_name
+    audioo['TIT2'] = TIT2(encoding=3, text=new_name)
+    
     audioo.save(filenam,v2_version=3)
 
     formats = info_dict['formats']

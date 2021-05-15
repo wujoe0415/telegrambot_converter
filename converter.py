@@ -59,7 +59,8 @@ def start(update: Update, context: CallbackContext):
 
     # update.message.reply_text(text='Example')
 
-    update.message.reply_text('Welcome to use this converter, '+ update.message.chat.username +", please type \\converter ")
+    update.message.reply_text('Welcome to use this converter, '+ update.message.chat.username +", please follow the installation step on "+
+    'https://github.com/wujoe0415/telegrambot_converter/blob/main/README.md')
     # .message.from_user_name == update.message.text.name
 
     
@@ -143,7 +144,7 @@ def convert(update: Update, context: CallbackContext):
     
     #"new_name.mp3" == audio=open(info_dict.get('title', info_dict.get('title', 'video')
 
-    #os.remove(new_name+".mp3")
+    os.remove(new_name+".mp3")
     new_name = ' '
     vlink=' '
 

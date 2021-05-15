@@ -32,7 +32,7 @@ def artname(update: Update, context: CallbackContext):
 
 def reform(update: Update, context: CallbackContext):
    #updater = Updater('1682027455:AAGriDdVHTH37BnzFCxP4zBFt1ADWv17JgI', use_context=True)
-    ban = ['\\', '/', '?', ':', '*', '\"', '>', '<', '|']
+    ban = ['\\', '/', '?', ':', '*', '\"', '>', '<', '|','.']
     global new_name
     # update.message.reply_text(update.message.chat.username + ",please enter the song title.")
     new_name = update.message.text[8:].replace('\n', '')
@@ -42,7 +42,7 @@ def reform(update: Update, context: CallbackContext):
     #update.message.reply_text(update.message.chat.username + ",please enter the song title.")
     #updater.dispatcher.add_handler(MessageHandler(Filters.text,rename))
     #context.bot.register_next_step_handler(Filters.text,rename)
-    
+
     update.message.reply_text(update.message.chat.username + ",please enter the artist\'s name.")
     #updater.dispatcher.add_handler(MessageHandler(Filters.text,artname))
     #context.bot.register_next_step_handler(Filters.text,artname)

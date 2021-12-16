@@ -149,7 +149,7 @@ def convert(update: Update, context: CallbackContext):
     vlink=' '
 
 def main():
-    updater = Updater('1682027455:AAGriDdVHTH37BnzFCxP4zBFt1ADWv17JgI', use_context=True)
+    updater = Updater('Token', use_context=True)
     updater.dispatcher.add_handler(CommandHandler("start", start))
     updater.dispatcher.add_handler(CommandHandler("end", end))
     updater.dispatcher.add_handler(CommandHandler("convert", convert, pass_args=True))
